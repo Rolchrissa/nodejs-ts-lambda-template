@@ -16,20 +16,43 @@ Parameters:
   NodeEnv:
     Type: String
     Description: Node Environment
+  SecurityGroup:
+    Type: String
+    Default: sg-[id]
+  Subnet1:
+    Type: String
+    Default: subnet-[id]
+  Subnet2:
+    Type: String
+    Default: subnet-[id]
 
 Resources:
   LambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub "lambda-${Environment}"
       CodeUri: build/bundle/
       Handler: main.handler
       Runtime: nodejs20.x
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: AllAtOnce
 
       Architectures:
         - x86_64
       Environment:
         Variables:
           ENVIRONMENT: !Ref NodeEnv
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
+
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref SecurityGroup
+        SubnetIds:
+          - !Ref Subnet1
+          - !Ref Subnet2
 
       Events:
         HealthCheck:
