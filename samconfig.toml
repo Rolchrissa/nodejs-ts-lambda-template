@@ -1,0 +1,20 @@
+version = 0.1
+[production]
+[production.deploy]
+[production.deploy.parameters]
+stack_name = "lambda-production"
+s3_bucket = "<your_s3_bucket>"
+s3_prefix = "lambda-production"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+
+[develop]
+[develop.deploy]
+[develop.deploy.parameters]
+stack_name = "lambda-develop"
+s3_bucket = "<your_s3_bucket>"
+s3_prefix = "lambda-develop"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []

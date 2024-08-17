@@ -1,0 +1,36 @@
+name: 🏗️ Build & 🚀 Deploy Prod
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      NODE_ENV: prod
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: 📩 Checkout
+        uses: actions/checkout@v2
+
+      - name: 👷🏼‍♂️👷🏼‍♀️ Node.js setup
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: 🏗️ Deps & 🎁 Build
+        run: |
+          make deps
+          make build
+      - uses: aws-actions/setup-sam@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.GH_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.GH_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - run: |
+          sam deploy --no-confirm-changeset --config-env "production" --parameter-overrides NodeEnv="${{ secrets.NODE_ENV }}"

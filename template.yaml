@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  LambdaFunction
+  LambdaFunction withing <Project>.
+Globals:
+  Function:
+    Timeout: 60
+  Api:
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
+
+Parameters:
+  NodeEnv:
+    Type: String
+    Description: Node Environment
+
+Resources:
+  LambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: build/bundle/
+      Handler: main.handler
+      Runtime: nodejs20.x
+
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref NodeEnv
+
+      Events:
+        HealthCheck:
+          Type: Api
+          Properties:
+            Path: /health/ping
+            Method: get
+            
+Outputs:
+  Lambda:
+    Description: "API Gateway endpoint URL for functions"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  LambdaFunction:
+    Description: " Lambda Function ARN"
+    Value: !GetAtt LambdaFunction.Arn
+  LambdaFunctionIamRole:
+    Description: "Implicit IAM Role created for Lambda"
+    Value: !GetAtt LambdaFunction.Arn
